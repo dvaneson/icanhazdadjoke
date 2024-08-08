@@ -13,6 +13,6 @@ Run the following commands to set up a local virtual environment for Python
 
 ## Usage
 
-To run the script, do either `main.py` or `python3 main.py`
+To run the script, do either `./dad_joke.py` or `python3 dad_joke.py`
 
 // TODO: Instructions on providing input to command
