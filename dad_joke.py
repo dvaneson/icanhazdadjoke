@@ -29,22 +29,24 @@ def random_dad_joke() -> str:
         time.sleep(1)
         return random_dad_joke()
 
-def search_dad_jokes(search: str, page: int = 1, limit: int = 20) -> list[dict]:
+def search_dad_jokes(search: str, page: int = 1, limit: int = 20) -> tuple[list[dict], int]:
     req = requests.get(f"{DAD_JOKE_BASE_URL}/search?page={page}&term={search}&limit={limit}", headers=HEADERS)
     req_json = req.json()
-    return req_json["results"]
+    return req_json["results"], req_json["next_page"]
 
 
 def search_query_loop(search: str, count: int, page: int) -> int:
     # Search for dad jokes based on the term, up to the count specified
-    dad_jokes = search_dad_jokes(search, page=page, limit=count)
-    page += 1
+    dad_jokes, next_page = search_dad_jokes(search, page=page, limit=count)
+    page = next_page
 
-    # If the number of jokes requested was not met, keep querying until the count has been hit
+    # If the number of jokes requested was not met, query again from the first page to fill out the set
     length = len(dad_jokes)
-    while length < count:
+    if length < count and page > 1:
+        # Reset page to 1
         page = 1
-        dad_jokes += search_dad_jokes(search, page=page, limit=count-length)
+        new_dad_jokes, _ = search_dad_jokes(search, page=page, limit=count-length)
+        dad_jokes += new_dad_jokes
         length = len(dad_jokes)
 
     for dad_joke in dad_jokes:
@@ -80,12 +82,12 @@ def main(search: str, count: int) -> None:
 if __name__ == "__main__":
     # Configuring CLI arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--count", help="The number of dad jokes to return in each set. Default is 1. Must be between 1 and 40.", default=1, type=int)
+    parser.add_argument("-c", "--count", help="The number of dad jokes to return in each set. Default is 1. Must be between 1 and 30.", default=1, type=int)
     parser.add_argument("-s", "--search", help="A search term to look up", default="", type=str)
     args = parser.parse_args()
 
     # Validate the count arg
-    if args.count > 0 and args.count <= 40: 
+    if args.count > 0 and args.count <= 30: 
         main(args.search, args.count)
     else:
-        print(f"ERROR: You have entered an invalid number, {args.count} \nPlease select a new count between 1 and 40")
+        print(f"ERROR: You have entered an invalid number, {args.count} \nPlease select a new count between 1 and 30")
