@@ -45,9 +45,9 @@ def search_query_loop(search: str, count: int, page: int) -> int:
     else:
         page = next_page
 
-    # If the number of jokes requested was not met, query again to fill out the set
+    # If the number of jokes requested was not met, query again from the first page to fill out the set, unless that would cause duplicates.
     length = len(dad_jokes)
-    if length < count:
+    if length < count and page == 1 and next_page != 1:
         new_dad_jokes, _ = search_dad_jokes(search, page=page, limit=count-length)
         dad_jokes += new_dad_jokes
         length = len(dad_jokes)
