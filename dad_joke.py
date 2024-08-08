@@ -35,16 +35,16 @@ def search_dad_jokes(search: str, page: int = 1, limit: int = 20) -> list[dict]:
     return req_json["results"]
 
 
-def search_query_loop(search: str, number: int, page: int) -> int:
-    # Search for dad jokes based on the term, up to the number specified
-    dad_jokes = search_dad_jokes(search, page=page, limit=number)
+def search_query_loop(search: str, count: int, page: int) -> int:
+    # Search for dad jokes based on the term, up to the count specified
+    dad_jokes = search_dad_jokes(search, page=page, limit=count)
     page += 1
 
-    # If the number of jokes requested was not met, keep querying until the number has been hit
+    # If the number of jokes requested was not met, keep querying until the count has been hit
     length = len(dad_jokes)
-    while length < number:
+    while length < count:
         page = 1
-        dad_jokes += search_dad_jokes(search, page=page, limit=number-length)
+        dad_jokes += search_dad_jokes(search, page=page, limit=count-length)
         length = len(dad_jokes)
 
     for dad_joke in dad_jokes:
@@ -52,7 +52,7 @@ def search_query_loop(search: str, number: int, page: int) -> int:
     
     return page
 
-def main(search: str, number: int) -> None:
+def main(search: str, count: int) -> None:
     # Repeat the loop after the interval (time in seconds), until the total time has been reached
     i = 0
     interval = 15
@@ -62,9 +62,9 @@ def main(search: str, number: int) -> None:
     page = 1
 
     while i <= total:
-        # If a search term was specified, use it, otherwise get n random jokes
-        if search !="" or number > 1:
-            page = search_query_loop(search, number, page)
+        # If a search term or count was specified, return jokes in a set, otherwise just get a random joke
+        if search !="" or count > 1:
+            page = search_query_loop(search, count, page)
         else:
             dad_joke = random_dad_joke()
             tell_joke(dad_joke)
@@ -80,12 +80,12 @@ def main(search: str, number: int) -> None:
 if __name__ == "__main__":
     # Configuring CLI arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--number", help="The number of dad jokes to return in each set. Default is 1. Must be between 1 and 40.", default=1, type=int)
+    parser.add_argument("-c", "--count", help="The number of dad jokes to return in each set. Default is 1. Must be between 1 and 40.", default=1, type=int)
     parser.add_argument("-s", "--search", help="A search term to look up", default="", type=str)
     args = parser.parse_args()
 
-    # Validate the number arg
-    if args.number > 0 and args.number <= 40: 
-        main(args.search, args.number)
+    # Validate the count arg
+    if args.count > 0 and args.count <= 40: 
+        main(args.search, args.count)
     else:
-        print(f"ERROR: You have entered an invalid number, {args.number} \nPlease select a new number between 1 and 40")
+        print(f"ERROR: You have entered an invalid number, {args.count} \nPlease select a new count between 1 and 40")
