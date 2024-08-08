@@ -38,13 +38,16 @@ def search_dad_jokes(search: str, page: int = 1, limit: int = 20) -> tuple[list[
 def search_query_loop(search: str, count: int, page: int) -> int:
     # Search for dad jokes based on the term, up to the count specified
     dad_jokes, next_page = search_dad_jokes(search, page=page, limit=count)
-    page = next_page
 
-    # If the number of jokes requested was not met, query again from the first page to fill out the set
-    length = len(dad_jokes)
-    if length < count and page > 1:
-        # Reset page to 1
+    # If next_page is equal to page, reset to 1
+    if page == next_page:
         page = 1
+    else:
+        page = next_page
+
+    # If the number of jokes requested was not met, query again to fill out the set
+    length = len(dad_jokes)
+    if length < count:
         new_dad_jokes, _ = search_dad_jokes(search, page=page, limit=count-length)
         dad_jokes += new_dad_jokes
         length = len(dad_jokes)
