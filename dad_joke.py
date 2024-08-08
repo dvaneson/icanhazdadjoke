@@ -34,13 +34,6 @@ def search_dad_jokes(search: str, page: int = 1, limit: int = 20) -> list[dict]:
     req_json = req.json()
     return req_json["results"]
 
-def random_query_loop(number: int) -> None:
-    # Tell a set of random dad jokes, based on the count
-    i = 0
-    while i < number: 
-        dad_joke = random_dad_joke(number)
-        tell_joke(dad_joke)
-        i += 1
 
 def search_query_loop(search: str, number: int, page: int) -> int:
     # Search for dad jokes based on the term, up to the number specified
@@ -70,10 +63,11 @@ def main(search: str, number: int) -> None:
 
     while i <= total:
         # If a search term was specified, use it, otherwise get n random jokes
-        if search:
+        if search !="" or number > 1:
             page = search_query_loop(search, number, page)
         else:
-            random_query_loop(number)
+            dad_joke = random_dad_joke()
+            tell_joke(dad_joke)
     
         i += interval
         # Don't need to wait on the last loop
@@ -87,7 +81,7 @@ if __name__ == "__main__":
     # Configuring CLI arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--number", help="The number of dad jokes to return in each set. Default is 1. Must be between 1 and 40.", default=1, type=int)
-    parser.add_argument("-s", "--search", help="A search term to look up", type=str)
+    parser.add_argument("-s", "--search", help="A search term to look up", default="", type=str)
     args = parser.parse_args()
 
     # Validate the number arg
